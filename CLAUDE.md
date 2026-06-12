@@ -22,7 +22,10 @@
 
 - **环境搭好后**：立刻用 `plotting.plot_grid_layout(env)` 生成 `results/gridworld_layout.png`（墙=灰、起点=绿 S、终点=金 G、格内标 0–63 索引），用 Read 工具看图确认墙的布局合理、起点到终点有通路，再动手写世界模型。
 - **每个阶段都先出图再分析**：P1→访问热力图、P2→准确率曲线 + top-3 预测、P3/P4→学习曲线 + 价值热力图、P5→数据量柱状图。
-- 所有图存到 `results/`，生成后用 Read 工具实际查看，不要只凭代码假设图是对的。
+- **动图优先用于"走通"调试**：用 `plotting.animate_episode(env, ...)` 把单个 episode 逐帧导出成 GIF（agent 红点、蓝色轨迹、步数/累计回报、噪声步标红），直观看 agent 怎么动、噪声怎么影响轨迹。后续训练好 agent 后也可传入贪婪策略 `policy=lambda s: argmax(Q[...])` 看学到的行为。
+- 所有图/动图存到 `results/`，生成后用 Read 工具实际查看（GIF 用 PIL 抽一帧转 PNG 再看），不要只凭代码假设图是对的。
+
+可视化工具一览（`plotting.py`）：`plot_grid_layout`（静态布局）、`animate_episode`（GIF 动图）、`plot_visitation_heatmap`（Figure 1 访问热力图）。
 
 ---
 

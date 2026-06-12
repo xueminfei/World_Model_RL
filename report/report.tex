@@ -1,0 +1,254 @@
+% =====================================================================
+%  Project 10: Teaching an Agent to Imagine
+%  SJTU — AI / Deep Learning & Reinforcement Learning, final project
+%
+%  ACADEMIC-INTEGRITY RED LINE (CLAUDE.md §8):
+%    Sections 5 (Main Experiment Results / the 5 analysis questions),
+%    6 (Failure Analysis) and the P5 PRE-REGISTERED PREDICTIONS must be
+%    written by YOU, by hand. They are left as TODO placeholders below.
+%    AI may scaffold structure and explain concepts, NOT ghost-write the
+%    analytical reasoning. The P5 predictions must be timestamped BEFORE
+%    you run the bad-model experiment (keep report/p5_prediction_*.md).
+%
+%  Sections 1–4 below are factual descriptions of the code/method and may
+%  be edited freely; treat them as a draft to rewrite in your own voice.
+% =====================================================================
+\documentclass[11pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{xcolor}
+\usepackage[colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue]{hyperref}
+
+% Visible placeholder box for the parts YOU must write by hand.
+\newcommand{\todo}[1]{\medskip\noindent\fbox{\parbox{0.97\linewidth}{%
+  \textcolor{red}{\textbf{[WRITE THIS YOURSELF — AI must not ghost-write]}}\\ #1}}\medskip}
+
+\graphicspath{{../results/}}
+
+\title{Teaching an Agent to Imagine:\\
+       Learning a World Model to Accelerate Dyna-Q in a Noisy GridWorld}
+\author{% TODO: your name / student ID
+        Your Name (Student ID)}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+% =====================================================================
+\section{Introduction}\label{sec:intro}
+% Target: 200–300 words. Draft below — rewrite in your own voice.
+We study whether a neural network that predicts an environment's next state
+can make a reinforcement-learning agent learn faster, and what happens when
+that predictor is wrong. The testbed is a noisy $8\times8$ GridWorld
+(20\% action noise). We learn a \emph{world model} (a transition network and a
+reward network) from random-policy experience, freeze it, and use it to
+generate ``imagined'' experience for Dyna-Q. We compare Dyna-Q ($K{=}10$)
+against tabular Q-learning ($K{=}0$, the no-model baseline) and Value Iteration
+(the oracle ceiling, computed from the true transition probabilities). The
+central question (Lec.~17--21): does a learned model improve sample efficiency,
+and how does model quality govern that benefit?
+
+\todo{Sharpen the motivation in your own words: why model-based RL, why
+sample efficiency matters, and state your hypothesis in one sentence. Reference
+the lectures (Lec.~17 model-based RL / Dyna-Q).}
+
+% =====================================================================
+\section{Environment}\label{sec:env}
+% Target: 250–350 words.
+The environment is a deterministic-topology, stochastic-dynamics GridWorld.
+States are integer coordinates $(r,c)$ with $r,c\in\{0,\dots,7\}$ (64 states),
+start $(0,0)$, goal $(7,7)$, and 10 fixed wall cells; a BFS check guarantees a
+start-to-goal path. Actions are $\{0{=}\text{up},1{=}\text{down},
+2{=}\text{left},3{=}\text{right}\}$. With probability $0.8$ the intended action
+is executed; with probability $0.2$ a uniformly random direction replaces it.
+Bumping a wall or boundary leaves the agent in place. The reward is $+1.0$ on
+reaching the goal (episode ends), and $-0.01$ per step otherwise; episodes time
+out after 100 steps. The 20\% noise is essential: a deterministic environment
+would make the world model a trivial lookup table, whereas noise forces it to
+learn a genuine probability distribution and gives the imagined experience room
+to help (or to mislead).
+
+Figure~\ref{fig:fig1} shows the state-visitation heatmap of 100 random-policy
+episodes: the top-left start region is visited far more than the bottom-right
+goal region, confirming the dynamics behave as intended.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.55\linewidth]{figure1_visitation.png}
+  \caption{\textbf{Figure 1.} State-visitation counts over 100 random-policy
+  episodes. Walls are gray. Visitation decays smoothly from the start $(0,0)$
+  to the rarely-reached goal $(7,7)$, verifying the environment.}
+  \label{fig:fig1}
+\end{figure}
+
+\todo{Optionally add 1--2 sentences interpreting Figure 1 (why the gradient
+looks the way it does) in your own words.}
+
+% =====================================================================
+\section{World Model}\label{sec:wm}
+% Target: 350–450 words.
+We collect 10{,}000 transitions $(s,a,s',r)$ under a \emph{random} policy (so
+the dataset covers the whole state space, not only an optimal path) and split
+80/20 into train/validation. Each $(s,a)$ is encoded as the concatenation of a
+64-dim state one-hot and a 4-dim action one-hot (68-dim input).
+
+\paragraph{Transition network (classification).}
+$68 \to 256 \to 256 \to 64$ logits over the next state, trained with
+cross-entropy for 20 epochs (Adam). It predicts a \emph{distribution} over the
+64 possible next states.
+
+\paragraph{Reward network (regression).}
+$68 \to 128 \to 64 \to 1$, trained with MSE for 20 epochs. Reward is easy to
+learn (almost always $-0.01$; only entering the goal gives $+1.0$); the
+validation MSE reaches $\approx 9\times10^{-5}$.
+
+Figure~\ref{fig:fig2} (left) plots validation accuracy versus epoch; (right)
+lists top-3 predicted next states for five probe $(s,a)$ pairs, all physically
+plausible (within one step of the queried cell).
+
+\paragraph{Why accuracy plateaus below 100\% (and slightly above the 75--85\%
+band).}
+The transition accuracy plateaus at $\approx 87\%$, not $100\%$, and this is a
+property of the environment, not a model defect. Under 20\% noise the intended
+direction is realized with probability $0.8 + 0.2\cdot\tfrac14 = 0.85$, so a
+\emph{perfect} mode predictor scores about $0.85$ on open-grid cells. Near walls
+and boundaries several directions collapse onto the \emph{same} next cell (a
+wall bump keeps the agent in place), so the most-likely next state can carry
+probability $0.90+$; e.g.\ the probe ``$(0,0)$, up'' predicts staying at $(0,0)$
+with $p\approx0.91$. Because the random policy over-samples the wall-dense
+top-left region, the dataset-averaged ceiling sits a little above $0.85$, which
+is why our model lands at $\approx 87\%$ rather than inside the nominal
+$75\text{--}85\%$ band. The gap to $100\%$ is exactly the irreducible noise
+entropy: the 20\% of steps whose direction is randomized are inherently
+unpredictable.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\linewidth]{figure2_transition_accuracy.png}
+  \caption{\textbf{Figure 2.} Left: transition-network validation accuracy vs
+  epoch; the shaded band is the nominal 75--85\% expectation and the dashed line
+  marks the unreachable 100\% (capped by 20\% noise). Right: top-3 predicted
+  next states for five $(s,a)$ probes; each is within one step of the queried
+  cell (``ok''), confirming the predictions are physically sensible.}
+  \label{fig:fig2}
+\end{figure}
+
+% =====================================================================
+\section{Dyna-Q Algorithm}\label{sec:dynaq}
+% Target: 300–400 words.
+Dyna-Q maintains a tabular $Q\in\mathbb{R}^{64\times4}$. After each real
+environment step it performs one real Q-learning update and then $K{=}10$
+imagined updates using the frozen world model, all with the same Bellman target
+\[
+  Q(s,a) \leftarrow Q(s,a) + \alpha\big[r + \gamma\max_{a'}Q(s',a') - Q(s,a)\big].
+\]
+Three design choices (to be justified against Lec.~17/19/21):
+\begin{enumerate}
+  \item Imagined $(s,a)$ are sampled only from \emph{previously visited} pairs in
+  the replay buffer — never from states the model has not seen, where its
+  predictions are unreliable.
+  \item The world model is trained and \emph{frozen} before RL begins; its
+  weights never update during RL, isolating the pure effect of the model.
+  \item Baseline ${}=$ Dyna-Q($K{=}0$) (no model); ceiling ${}=$ Value Iteration
+  on the true $P[s,a,s']$ from \texttt{get\_all\_transitions()}.
+\end{enumerate}
+
+\todo{Explain, in your own words, WHY each of the three choices matters
+(especially \#1: querying unseen $(s,a)$ injects garbage targets). This is
+conceptual and you should articulate it yourself.}
+
+% =====================================================================
+\section{Main Experiment Results}\label{sec:results}
+% Target: 500–700 words.  *** RED LINE: WRITE THE ANALYSIS YOURSELF. ***
+\begin{figure}[h]
+  \centering
+  % \includegraphics[width=0.8\linewidth]{figure3_learning_curves.png}
+  \caption{\textbf{Figure 3.} Success rate vs real environment steps for Value
+  Iteration (dashed ceiling), Q-learning ($K{=}0$), and Dyna-Q ($K{=}10$);
+  mean $\pm 1$ std over 3 seeds. \emph{[generated in P4]}}
+  \label{fig:fig3}
+\end{figure}
+\begin{figure}[h]
+  \centering
+  % \includegraphics[width=\linewidth]{figure4_value_heatmaps.png}
+  \caption{\textbf{Figure 4.} Value-function heatmaps (VI / Q-learning / Dyna-Q),
+  shared color scale, walls in gray. \emph{[generated in P4]}}
+  \label{fig:fig4}
+\end{figure}
+
+\todo{Answer the 5 analysis questions for P4 in your own words, citing
+Figures 3--4 and Lec.~19/21. Do NOT let AI write this reasoning. Suggested
+skeleton (fill each yourself):
+(1) Does Dyna-Q learn faster than Q-learning? Quantify (steps-to-threshold).
+(2) Do both converge to the VI ceiling? Any residual gap and why?
+(3) What do the value heatmaps reveal about propagation of value?
+(4) How does the imagined experience change the early-learning regime?
+(5) Where does the 20\% noise show up in the curves / variance across seeds?}
+
+% =====================================================================
+\section{Failure Analysis}\label{sec:failure}
+% Target: 500–700 words.  *** RED LINE: WRITE THIS YOURSELF (most weight). ***
+\begin{figure}[h]
+  \centering
+  % \includegraphics[width=0.6\linewidth]{figure5_data_scaling.png}
+  \caption{\textbf{Figure 5.} 50K-step success rate vs world-model training-set
+  size (200 / 2000 / 10000 transitions) and the $K{=}0$ baseline.
+  \emph{[generated in P5]}}
+  \label{fig:fig5}
+\end{figure}
+
+\todo{\textbf{Pre-registered prediction (P5):} BEFORE running the bad-model
+experiment, write your prediction of what the 200-transition model will do and
+why, and SAVE it timestamped (report/p5\_prediction\_YYYY-MM-DD.md). Paste that
+timestamped text here. This must predate the results.}
+
+\todo{\textbf{Failure analysis (write yourself):} explain the mechanism by which
+a model trained on only 200 transitions hurts Dyna-Q — near-random predictions
+on unseen $(s,a)$, imagined updates dragging $Q$ toward wrong targets, error
+compounding over $K$ imagined steps. Tie it to Lec.~18/19/21. Compare 200 vs
+2000 vs 10000 (Figure 5). Do NOT let AI write this reasoning.}
+
+% =====================================================================
+\section{Reflection}\label{sec:reflection}
+% Target: 200–300 words.
+\todo{Your own reflection: what surprised you, what you would change, the
+trade-off between model bias and sample efficiency, limits of the GridWorld
+setting. Personal — write it yourself.}
+
+% =====================================================================
+\section{AI Tool Usage Log}\label{sec:ailog}
+% Target: 100–200 words. Factual disclosure — VERIFY every claim is true for you
+% and edit to match your own experience before submitting.
+I used Claude Code (Anthropic) as a coding assistant. It generated and helped
+debug the implementation: the environment (\texttt{gridworld.py}), the encoding
+utilities (\texttt{utils.py}), the world model (\texttt{world\_model.py}), the
+Dyna-Q / Q-learning / Value-Iteration code (\texttt{dyna\_q.py}), and the
+plotting scripts (\texttt{plotting.py}). It also explained concepts, e.g.\ why
+the transition accuracy is capped below 100\% by the 20\% action noise.
+
+Two things it got wrong or flagged, which I checked myself:
+\begin{itemize}
+  \item \textbf{A real bug it introduced and then fixed.} The first training run
+  pegged $\sim$30 CPU cores and burned over 180 CPU-minutes without finishing:
+  PyTorch's default intra-op parallelism spawns a thread per core, and the
+  scheduling overhead dominates these tiny $68$-dim MLPs on small batches. Adding
+  \texttt{torch.set\_num\_threads(1)} cut a full run to $\approx 6$ seconds.
+  \item \textbf{A deviation it surfaced.} Validation accuracy came out at
+  $\approx 87\%$, slightly above the nominal 75--85\% band. Rather than tune it
+  down, I kept the result and the honest explanation in Section~\ref{sec:wm}
+  (wall-collapsing pushes the per-state ceiling above 0.85).
+\end{itemize}
+
+All experimental analysis (Section~\ref{sec:results}), the failure analysis and
+the pre-registered prediction (Section~\ref{sec:failure}), and the reflection
+(Section~\ref{sec:reflection}) are written entirely by me; AI did not author that
+reasoning.
+
+\end{document}

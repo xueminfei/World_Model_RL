@@ -1,0 +1,49 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyperFirstAtBeginDocument{\AtBeginDocument}
+\HyperFirstAtBeginDocument{\ifx\hyper@anchor\@undefined
+\global\let\oldcontentsline\contentsline
+\gdef\contentsline#1#2#3#4{\oldcontentsline{#1}{#2}{#3}}
+\global\let\oldnewlabel\newlabel
+\gdef\newlabel#1#2{\newlabelxx{#1}#2}
+\gdef\newlabelxx#1#2#3#4#5#6{\oldnewlabel{#1}{{#2}{#3}}}
+\AtEndDocument{\ifx\hyper@anchor\@undefined
+\let\contentsline\oldcontentsline
+\let\newlabel\oldnewlabel
+\fi}
+\fi}
+\global\let\hyper@last\relax 
+\gdef\HyperFirstAtBeginDocument#1{#1}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
+\newlabel{sec:intro}{{1}{1}{Introduction}{section.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Environment}{1}{section.2}\protected@file@percent }
+\newlabel{sec:env}{{2}{1}{Environment}{section.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces \textbf  {Figure 1.} State-visitation counts over 100 random-policy episodes. Walls are gray. Visitation decays smoothly from the start $(0,0)$ to the rarely-reached goal $(7,7)$, verifying the environment.\relax }}{2}{figure.caption.1}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{fig:fig1}{{1}{2}{\textbf {Figure 1.} State-visitation counts over 100 random-policy episodes. Walls are gray. Visitation decays smoothly from the start $(0,0)$ to the rarely-reached goal $(7,7)$, verifying the environment.\relax }{figure.caption.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}World Model}{2}{section.3}\protected@file@percent }
+\newlabel{sec:wm}{{3}{2}{World Model}{section.3}{}}
+\@writefile{toc}{\contentsline {paragraph}{Transition network (classification).}{2}{section*.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Reward network (regression).}{2}{section*.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Why accuracy plateaus below 100\% (and slightly above the 75--85\% band).}{2}{section*.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces \textbf  {Figure 2.} Left: transition-network validation accuracy vs epoch; the shaded band is the nominal 75--85\% expectation and the dashed line marks the unreachable 100\% (capped by 20\% noise). Right: top-3 predicted next states for five $(s,a)$ probes; each is within one step of the queried cell (``ok''), confirming the predictions are physically sensible.\relax }}{3}{figure.caption.5}\protected@file@percent }
+\newlabel{fig:fig2}{{2}{3}{\textbf {Figure 2.} Left: transition-network validation accuracy vs epoch; the shaded band is the nominal 75--85\% expectation and the dashed line marks the unreachable 100\% (capped by 20\% noise). Right: top-3 predicted next states for five $(s,a)$ probes; each is within one step of the queried cell (``ok''), confirming the predictions are physically sensible.\relax }{figure.caption.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Dyna-Q Algorithm}{3}{section.4}\protected@file@percent }
+\newlabel{sec:dynaq}{{4}{3}{Dyna-Q Algorithm}{section.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Main Experiment Results}{3}{section.5}\protected@file@percent }
+\newlabel{sec:results}{{5}{3}{Main Experiment Results}{section.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces \textbf  {Figure 3.} Success rate vs real environment steps for Value Iteration (dashed ceiling), Q-learning ($K{=}0$), and Dyna-Q ($K{=}10$); mean $\pm 1$ std over 3 seeds. \emph  {[generated in P4]}\relax }}{3}{figure.caption.6}\protected@file@percent }
+\newlabel{fig:fig3}{{3}{3}{\textbf {Figure 3.} Success rate vs real environment steps for Value Iteration (dashed ceiling), Q-learning ($K{=}0$), and Dyna-Q ($K{=}10$); mean $\pm 1$ std over 3 seeds. \emph {[generated in P4]}\relax }{figure.caption.6}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces \textbf  {Figure 4.} Value-function heatmaps (VI / Q-learning / Dyna-Q), shared color scale, walls in gray. \emph  {[generated in P4]}\relax }}{4}{figure.caption.7}\protected@file@percent }
+\newlabel{fig:fig4}{{4}{4}{\textbf {Figure 4.} Value-function heatmaps (VI / Q-learning / Dyna-Q), shared color scale, walls in gray. \emph {[generated in P4]}\relax }{figure.caption.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Failure Analysis}{4}{section.6}\protected@file@percent }
+\newlabel{sec:failure}{{6}{4}{Failure Analysis}{section.6}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces \textbf  {Figure 5.} 50K-step success rate vs world-model training-set size (200 / 2000 / 10000 transitions) and the $K{=}0$ baseline. \emph  {[generated in P5]}\relax }}{4}{figure.caption.8}\protected@file@percent }
+\newlabel{fig:fig5}{{5}{4}{\textbf {Figure 5.} 50K-step success rate vs world-model training-set size (200 / 2000 / 10000 transitions) and the $K{=}0$ baseline. \emph {[generated in P5]}\relax }{figure.caption.8}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Reflection}{4}{section.7}\protected@file@percent }
+\newlabel{sec:reflection}{{7}{4}{Reflection}{section.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8}AI Tool Usage Log}{4}{section.8}\protected@file@percent }
+\newlabel{sec:ailog}{{8}{4}{AI Tool Usage Log}{section.8}{}}
+\gdef \@abspage@last{4}
