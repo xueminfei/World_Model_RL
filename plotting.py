@@ -263,6 +263,215 @@ def plot_transition_accuracy(acc_history, model, env, sa_pairs=None,
     return save_path
 
 
+def _greedy_rollout_from_Q(env, Q, seed, max_steps):
+    """One greedy episode of `Q` in the real env; ties broken with a seeded RNG.
+
+    `env.rng` is seeded so two agents compared at the same checkpoint face the
+    *same* noise realization step-by-step -- the only difference is their chosen
+    actions.
+    """
+    env.rng.seed(seed)
+    rng = np.random.default_rng(seed)
+    s = env.reset()
+    traj = [{"state": s, "reward": 0.0, "noisy": False, "done": False}]
+    for _ in range(max_steps):
+        row = Q[s[0] * env.SIZE + s[1]]
+        best = np.flatnonzero(row == row.max())
+        a = int(best[rng.integers(len(best))])
+        ns, r, done, info = env.step(a)
+        traj.append({"state": ns, "reward": r, "noisy": info["noisy"], "done": done})
+        s = ns
+        if done:
+            break
+    return traj
+
+
+def animate_training_comparison(env, snapshots_a, snapshots_b, checkpoints,
+                                labels=("Q-learning (K=0)", "Dyna-Q (K=10)"),
+                                colors=("#1f77b4", "#d62728"),
+                                save_path=None, seed=7, fps=6, max_steps=40, hold=5):
+    """Side-by-side GIF: at matched training budgets, how each agent acts for real.
+
+    For each budget in `checkpoints`, both agents' frozen-at-that-budget greedy
+    policies are rolled out in the SAME real environment (identical noise), and
+    the two episodes are animated in lockstep -- left = no world model, right =
+    with world model. You directly watch the model-equipped agent reach the goal
+    at a training budget where the baseline is still wandering.
+
+    Parameters
+    ----------
+    snapshots_a, snapshots_b : {step: Q} dicts from dyna_q(..., snapshot_steps=).
+    checkpoints : ordered real-step budgets to show (must be keys in both dicts).
+    hold : extra frames to freeze on each checkpoint's final state before moving on.
+    """
+    _ensure_results_dir()
+    if save_path is None:
+        save_path = os.path.join(RESULTS_DIR, "training_comparison.gif")
+
+    # Precompute both rollouts per checkpoint, then a flat frame plan.
+    plan = []
+    for budget in checkpoints:
+        traj_a = _greedy_rollout_from_Q(env, snapshots_a[budget], seed, max_steps)
+        traj_b = _greedy_rollout_from_Q(env, snapshots_b[budget], seed, max_steps)
+        n_sub = max(len(traj_a), len(traj_b)) + hold
+        for f in range(n_sub):
+            plan.append((budget, traj_a, traj_b, min(f, len(traj_a) - 1),
+                         min(f, len(traj_b) - 1)))
+
+    fig, axes = plt.subplots(1, 2, figsize=(11, 5.8))
+
+    def panel(ax, traj, idx, label, color):
+        ax.clear()
+        _base_grid_ax(ax, env)
+        for step in traj[:idx + 1]:
+            r, c = step["state"]
+            if (r, c) not in (env.START, env.GOAL):
+                ax.add_patch(plt.Rectangle((c - 0.5, r - 0.5), 1, 1,
+                                           color=color, alpha=0.16))
+        r, c = traj[idx]["state"]
+        ax.add_patch(plt.Circle((c, r), 0.3, color=color, zorder=5))
+        total_r = sum(s["reward"] for s in traj[:idx + 1])
+        title = f"{label}\nstep {idx}/{len(traj) - 1}   return={total_r:.2f}"
+        if traj[idx]["done"]:
+            title += "   GOAL!" if traj[idx]["reward"] > 0 else "   timeout"
+        ax.set_title(title, fontsize=10,
+                     color="#2ca02c" if (traj[idx]["done"] and traj[idx]["reward"] > 0)
+                     else "black")
+
+    def draw(frame):
+        budget, traj_a, traj_b, ia, ib = plan[frame]
+        panel(axes[0], traj_a, ia, labels[0], colors[0])
+        panel(axes[1], traj_b, ib, labels[1], colors[1])
+        fig.suptitle(f"Greedy policy in the real env after {budget:,} training steps "
+                     f"(same noise both sides)", fontsize=12, fontweight="bold")
+
+    anim = FuncAnimation(fig, draw, frames=len(plan), interval=1000 // fps)
+    anim.save(save_path, writer=PillowWriter(fps=fps))
+    plt.close(fig)
+    return save_path
+
+
+def _steps_to_threshold(steps, mean_curve, threshold):
+    """First real-step count at which `mean_curve` reaches `threshold` (or None)."""
+    hit = np.flatnonzero(mean_curve >= threshold)
+    return int(steps[hit[0]]) if len(hit) else None
+
+
+def plot_learning_curves(curves, vi_ceiling=None, save_path=None,
+                         annotate_threshold=0.5,
+                         title="Figure 3: greedy success rate vs real steps"):
+    """Figure 3: success-rate learning curves on a shared real-step x-axis.
+
+    Parameters
+    ----------
+    curves : list of dicts, each {label, steps, data, color} where `data` is a
+        (n_seeds, n_checkpoints) array of greedy success rates. Plotted as the
+        seed-mean with a +/-1 std band. Designed to take extra lines later (e.g.
+        the P5 bad-model run) without changing the call site.
+    vi_ceiling : float or None -- Value Iteration's greedy success, drawn as a
+        dashed horizontal ceiling line.
+    annotate_threshold : draw, per curve, the real-step count to first reach this
+        success level (the "how much faster" number).
+    """
+    _ensure_results_dir()
+    if save_path is None:
+        save_path = os.path.join(RESULTS_DIR, "figure3_learning_curves.png")
+
+    fig, ax = plt.subplots(figsize=(8, 5.5))
+
+    if vi_ceiling is not None:
+        ax.axhline(vi_ceiling, color="#2ca02c", ls="--", lw=1.5,
+                   label=f"Value Iteration ceiling ({vi_ceiling:.0%})")
+
+    annotations = []
+    for spec in curves:
+        steps = spec["steps"]
+        data = np.asarray(spec["data"], dtype=float)
+        mean = np.nanmean(data, axis=0)
+        std = np.nanstd(data, axis=0)
+        color = spec.get("color")
+        ax.plot(steps, mean, color=color, lw=2, label=spec["label"])
+        ax.fill_between(steps, mean - std, mean + std, color=color, alpha=0.18)
+
+        hit = _steps_to_threshold(steps, mean, annotate_threshold)
+        if hit is not None:
+            ax.axvline(hit, color=color, ls=":", lw=1, alpha=0.6)
+            annotations.append((spec["label"], hit, color))
+
+    # "steps to reach threshold" callout box.
+    if annotations:
+        lines = [f"steps to {annotate_threshold:.0%} success:"]
+        for label, hit, _ in annotations:
+            lines.append(f"  {label}: {hit:,}")
+        ax.text(0.98, 0.02, "\n".join(lines), transform=ax.transAxes,
+                ha="right", va="bottom", fontsize=8, family="monospace",
+                bbox=dict(boxstyle="round", fc="white", ec="#cccccc", alpha=0.9))
+
+    ax.set_xlabel("real environment steps")
+    ax.set_ylabel("greedy success rate (over eval episodes)")
+    ax.set_title(title)
+    ax.set_ylim(-0.02, 1.05)
+    ax.grid(alpha=0.3)
+    ax.legend(loc="center right", fontsize=9)
+    fig.tight_layout()
+    fig.savefig(save_path, dpi=120)
+    plt.close(fig)
+    return save_path
+
+
+def plot_value_heatmaps(env, value_maps, save_path=None):
+    """Figure 4: side-by-side state-value heatmaps on a shared colour scale.
+
+    Parameters
+    ----------
+    value_maps : list of (title, V) where V is a length-64 array of state values
+        (e.g. V* from Value Iteration, and max_a Q(s,a) for the learned agents).
+        Walls are drawn gray. A common colour scale makes the agents directly
+        comparable to the Value Iteration truth.
+    """
+    _ensure_results_dir()
+    if save_path is None:
+        save_path = os.path.join(RESULTS_DIR, "figure4_value_heatmaps.png")
+
+    size = env.SIZE
+    wall_mask = np.array([[(r, c) in env.WALLS for c in range(size)]
+                          for r in range(size)])
+    grids = [np.asarray(V, dtype=float).reshape(size, size) for _, V in value_maps]
+
+    finite = np.concatenate([g[~wall_mask].ravel() for g in grids])
+    vmin, vmax = float(finite.min()), float(finite.max())
+
+    n = len(value_maps)
+    fig, axes = plt.subplots(1, n, figsize=(4.6 * n, 4.6))
+    if n == 1:
+        axes = [axes]
+    cmap = plt.cm.viridis.copy()
+    cmap.set_bad("#444444")  # walls
+
+    im = None
+    for ax, (panel_title, _), grid in zip(axes, value_maps, grids):
+        masked = np.ma.masked_where(wall_mask, grid)
+        im = ax.imshow(masked, cmap=cmap, vmin=vmin, vmax=vmax)
+        for r in range(size):
+            for c in range(size):
+                if wall_mask[r, c]:
+                    continue
+                ax.text(c, r, f"{grid[r, c]:.2f}", ha="center", va="center",
+                        fontsize=6, color="white")
+        ax.set_xticks(range(size))
+        ax.set_yticks(range(size))
+        ax.set_xlabel("col")
+        ax.set_ylabel("row")
+        ax.set_title(panel_title, fontsize=11)
+
+    fig.suptitle("Figure 4: state-value functions V(s) (shared scale, walls gray)",
+                 fontsize=12)
+    fig.colorbar(im, ax=axes, label="V(s)", fraction=0.025, pad=0.02)
+    fig.savefig(save_path, dpi=120, bbox_inches="tight")
+    plt.close(fig)
+    return save_path
+
+
 if __name__ == "__main__":
     from gridworld import GridWorld
     layout = plot_grid_layout(GridWorld(seed=0))
