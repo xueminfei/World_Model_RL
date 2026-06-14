@@ -89,17 +89,29 @@ def evaluate_greedy(Q, n_episodes=200, noise_prob=0.2, max_steps=None, seed=1234
 # --------------------------------------------------------------------------- #
 def dyna_q(env, transition_model, reward_model, K=10, alpha=0.1, gamma=0.95,
            n_steps=50_000, epsilon_start=1.0, epsilon_end=0.05,
-           record_every=500, eval_episodes=0, snapshot_steps=None, seed=0):
+           record_every=500, eval_episodes=0, snapshot_steps=None, seed=0,
+           imagine="neural"):
     """Train a tabular agent for `n_steps` REAL env steps with K imagined updates.
 
-    Each real step does one standard Q-learning update, then (if K>0 and a frozen
-    world model is given) K imagined updates on (s, a) pairs drawn from the set of
-    visited pairs, with next state / reward supplied by the world model.
+    Each real step does one standard Q-learning update, then (if K>0) K extra
+    updates whose (next state, reward) come from the chosen *imagination source*.
+    This isolates two orthogonal knobs: the imagination loop (K) and where its
+    synthetic transitions come from (`imagine`).
 
     Parameters
     ----------
     transition_model, reward_model : frozen nn.Module or None
-        None (or K=0) disables imagination -> plain Q-learning.
+        The learned world model. Only used when imagine="neural".
+    imagine : {"neural", "tabular", "replay"}
+        Source of the K imagined transitions (ignored when K=0):
+          * "neural"  : sample (s,a) from visited pairs; the frozen MLP world
+                        model predicts (s', r). The project's Dyna-Q.
+          * "tabular" : classic Sutton Dyna-Q. A lookup table remembers the LAST
+                        observed (s', r) for each visited (s,a) and replays it --
+                        imagination WITHOUT a learned/neural model.
+          * "replay"  : experience replay. Re-apply the Q update to K real,
+                        previously observed transitions (s,a,r,s') drawn from a
+                        buffer -- no model at all, only real data reused.
     record_every : log recent-20-episode avg reward & success rate this often.
     eval_episodes : if >0, also log greedy-policy success rate over this many
         fresh episodes at each checkpoint (cleaner Figure 3 curve).
@@ -111,17 +123,22 @@ def dyna_q(env, transition_model, reward_model, K=10, alpha=0.1, gamma=0.95,
     """
     rng = np.random.default_rng(seed)
     torch.manual_seed(seed)
-    use_model = K > 0 and transition_model is not None and reward_model is not None
-    if use_model:
+    use_neural = (K > 0 and imagine == "neural"
+                  and transition_model is not None and reward_model is not None)
+    if use_neural:
         transition_model.eval()
         reward_model.eval()
 
     Q = np.zeros((N_STATES, N_ACTIONS), dtype=np.float64)
 
-    # Replay buffer of *visited* (s, a) pairs (deduped) -- the only pairs we let
-    # the world model imagine from.
+    # Set of *visited* (s, a) pairs (deduped) -- the only seeds neural/tabular
+    # imagination is ever allowed to start from (never an unseen pair).
     visited_set = set()
     visited_list = []
+    # "tabular" model: last observed (s', r, done) per visited (s, a).
+    model_table = {}
+    # "replay" buffer: every real transition (s, a, r, s', done) seen so far.
+    replay = []
 
     eps_decay = (epsilon_start - epsilon_end)
 
@@ -168,27 +185,47 @@ def dyna_q(env, transition_model, reward_model, K=10, alpha=0.1, gamma=0.95,
         target = r if done else r + gamma * Q[ns_idx].max()
         Q[s_idx, a] += alpha * (target - Q[s_idx, a])
 
-        # Remember this (s, a) as a legal seed for imagination.
+        # Remember this (s, a) as a legal seed for imagination, and record the
+        # observed transition for the tabular model / replay buffer.
         if (s_idx, a) not in visited_set:
             visited_set.add((s_idx, a))
             visited_list.append((s_idx, a))
+        model_table[(s_idx, a)] = (ns_idx, r, done)
+        replay.append((s_idx, a, r, ns_idx, done))
 
-        # --- K imagined updates from the frozen world model ---------------- #
-        if use_model and visited_list:
-            pick = rng.integers(len(visited_list), size=K)
-            sa = np.asarray(visited_list, dtype=np.int64)[pick]
-            im_s, im_a = sa[:, 0], sa[:, 1]
-            X = torch.from_numpy(_sa_batch_vectors(im_s, im_a))
-            with torch.no_grad():
-                probs = torch.softmax(transition_model(X), dim=1)
-                im_ns = torch.multinomial(probs, 1).squeeze(1).numpy()
-                im_r = reward_model(X).squeeze(1).numpy()
-            im_terminal = im_ns == GOAL_INDEX
-            im_target = im_r + gamma * Q[im_ns].max(axis=1) * (~im_terminal)
-            # Apply imagined updates (a small per-pair loop; K is tiny, e.g. 10).
-            for j in range(K):
-                si, ai = int(im_s[j]), int(im_a[j])
-                Q[si, ai] += alpha * (im_target[j] - Q[si, ai])
+        # --- K imagined updates from the chosen imagination source --------- #
+        if K > 0:
+            if use_neural and visited_list:
+                pick = rng.integers(len(visited_list), size=K)
+                sa = np.asarray(visited_list, dtype=np.int64)[pick]
+                im_s, im_a = sa[:, 0], sa[:, 1]
+                X = torch.from_numpy(_sa_batch_vectors(im_s, im_a))
+                with torch.no_grad():
+                    probs = torch.softmax(transition_model(X), dim=1)
+                    im_ns = torch.multinomial(probs, 1).squeeze(1).numpy()
+                    im_r = reward_model(X).squeeze(1).numpy()
+                im_terminal = im_ns == GOAL_INDEX
+                im_target = im_r + gamma * Q[im_ns].max(axis=1) * (~im_terminal)
+                for j in range(K):  # K is tiny (e.g. 10), a small loop is fine.
+                    si, ai = int(im_s[j]), int(im_a[j])
+                    Q[si, ai] += alpha * (im_target[j] - Q[si, ai])
+
+            elif imagine == "tabular" and visited_list:
+                # Classic Dyna-Q: replay the memorised (s', r) for sampled pairs.
+                pick = rng.integers(len(visited_list), size=K)
+                for j in pick:
+                    si, ai = visited_list[j]
+                    ns, rr, dn = model_table[(si, ai)]
+                    tgt = rr if dn else rr + gamma * Q[ns].max()
+                    Q[si, ai] += alpha * (tgt - Q[si, ai])
+
+            elif imagine == "replay" and replay:
+                # Experience replay: re-apply the Q update to real transitions.
+                pick = rng.integers(len(replay), size=K)
+                for j in pick:
+                    si, ai, rr, ns, dn = replay[j]
+                    tgt = rr if dn else rr + gamma * Q[ns].max()
+                    Q[si, ai] += alpha * (tgt - Q[si, ai])
 
         # --- episode bookkeeping ------------------------------------------- #
         if done:
@@ -210,6 +247,7 @@ def dyna_q(env, transition_model, reward_model, K=10, alpha=0.1, gamma=0.95,
         "avg_reward": np.array(rec_avg_reward),
         "success_rate": np.array(rec_success),
         "K": K,
+        "imagine": imagine if K > 0 else "none",
         "seed": seed,
     }
     if eval_episodes > 0:
