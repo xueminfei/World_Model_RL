@@ -58,14 +58,16 @@ def _sa_batch_vectors(s_indices, a_indices):
     return X
 
 
-def evaluate_greedy(Q, n_episodes=200, noise_prob=0.2, max_steps=None, seed=12345):
+def evaluate_greedy(Q, n_episodes=200, noise_prob=0.2, max_steps=None, seed=12345,
+                    walls=None, goal=None, start=None):
     """Run the greedy policy of `Q` and return (success_rate, mean_return).
 
     A fresh env (its own RNG) is used so evaluation never perturbs training.
-    `success` = reached the goal before timeout. Used for the Figure 3 ceiling
-    (Value Iteration's greedy policy) and optional greedy learning curves.
+    `success` = reached the goal before timeout. `walls`/`goal`/`start` pick the
+    map to evaluate on (default: training map) -- needed so a new-map run is
+    scored on the new map, not the training one.
     """
-    env = GridWorld(noise_prob=noise_prob, seed=seed)
+    env = GridWorld(noise_prob=noise_prob, seed=seed, walls=walls, goal=goal, start=start)
     if max_steps is None:
         max_steps = env.MAX_STEPS
     rng = np.random.default_rng(seed)
@@ -90,7 +92,7 @@ def evaluate_greedy(Q, n_episodes=200, noise_prob=0.2, max_steps=None, seed=1234
 def dyna_q(env, transition_model, reward_model, K=10, alpha=0.1, gamma=0.95,
            n_steps=50_000, epsilon_start=1.0, epsilon_end=0.05,
            record_every=500, eval_episodes=0, snapshot_steps=None, seed=0,
-           imagine="neural"):
+           imagine="neural", sa_encoder=None):
     """Train a tabular agent for `n_steps` REAL env steps with K imagined updates.
 
     Each real step does one standard Q-learning update, then (if K>0) K extra
@@ -125,6 +127,10 @@ def dyna_q(env, transition_model, reward_model, K=10, alpha=0.1, gamma=0.95,
     torch.manual_seed(seed)
     use_neural = (K > 0 and imagine == "neural"
                   and transition_model is not None and reward_model is not None)
+    # How to encode imagined (s, a) pairs into the world model's input. Defaults
+    # to the 68-dim one-hot builder; the improved WM passes obs_batch_vectors
+    # (77-dim structured obs) so the same imagination loop works unchanged.
+    encode_sa = sa_encoder if sa_encoder is not None else _sa_batch_vectors
     if use_neural:
         transition_model.eval()
         reward_model.eval()
@@ -160,7 +166,8 @@ def dyna_q(env, transition_model, reward_model, K=10, alpha=0.1, gamma=0.95,
             # Fixed eval seed across checkpoints: the same eval episodes every
             # time, so the curve reflects policy improvement, not eval-set noise.
             sr, _ = evaluate_greedy(Q, n_episodes=eval_episodes,
-                                    noise_prob=env.noise_prob, seed=99)
+                                    noise_prob=env.noise_prob, seed=99,
+                                    walls=env.WALLS, goal=env.GOAL, start=env.START)
             rec_eval_success.append(sr)
 
     s = env.reset()
@@ -199,7 +206,7 @@ def dyna_q(env, transition_model, reward_model, K=10, alpha=0.1, gamma=0.95,
                 pick = rng.integers(len(visited_list), size=K)
                 sa = np.asarray(visited_list, dtype=np.int64)[pick]
                 im_s, im_a = sa[:, 0], sa[:, 1]
-                X = torch.from_numpy(_sa_batch_vectors(im_s, im_a))
+                X = torch.from_numpy(encode_sa(im_s, im_a))
                 with torch.no_grad():
                     probs = torch.softmax(transition_model(X), dim=1)
                     im_ns = torch.multinomial(probs, 1).squeeze(1).numpy()

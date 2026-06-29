@@ -472,6 +472,101 @@ def plot_value_heatmaps(env, value_maps, save_path=None):
     return save_path
 
 
+def plot_data_scaling(labels, means, stds, save_path=None, vi_ceiling=None,
+                      colors=None):
+    """Figure 5: bar chart of success rate at a fixed step budget vs WM data size.
+
+    labels : x-axis bar labels (e.g. ['200', '2000', '10000', 'K=0']).
+    means/stds : per-bar success-rate mean and std over seeds.
+    """
+    _ensure_results_dir()
+    if save_path is None:
+        save_path = os.path.join(RESULTS_DIR, "figure5_data_scaling.png")
+    if colors is None:
+        colors = ["#9467bd", "#ff7f0e", "#d62728", "#1f77b4"][:len(labels)]
+
+    fig, ax = plt.subplots(figsize=(7, 5))
+    x = np.arange(len(labels))
+    ax.bar(x, means, yerr=stds, capsize=5, color=colors, edgecolor="black", alpha=0.9)
+    for xi, m in zip(x, means):
+        ax.text(xi, m + 0.02, f"{m:.0%}", ha="center", va="bottom", fontsize=9)
+    if vi_ceiling is not None:
+        ax.axhline(vi_ceiling, color="#2ca02c", ls="--", lw=1.5,
+                   label=f"Value Iteration ceiling ({vi_ceiling:.0%})")
+        ax.legend(loc="lower left", fontsize=9)
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels)
+    ax.set_xlabel("world-model training-set size (transitions); 'K=0' = no model")
+    ax.set_ylabel("success rate at 50K real steps")
+    ax.set_ylim(0, 1.08)
+    ax.set_title("Figure 5: Dyna-Q success at 50K steps vs world-model data size")
+    ax.grid(axis="y", alpha=0.3)
+    fig.tight_layout()
+    fig.savefig(save_path, dpi=120)
+    plt.close(fig)
+    return save_path
+
+
+def plot_improved_wm(histories, p_values, save_path=None):
+    """Improved WM (P2 extension): which modality carries which part of obs'?
+
+    The model is trained with independent dropout of the state one-hot block and
+    the window block (prob p each), then evaluated under three conditions:
+    full (both), state_only (window dropped), win_only (state dropped). Two panels
+    share an epoch x-axis:
+      left  = next-state accuracy (the ABSOLUTE part of obs')
+      right = per-cell window accuracy (the RELATIVE part of obs')
+    Colour = dropout prob p; line style = eval condition (solid full, dotted
+    state-only, dashed window-only). Expected story: the absolute next-state needs
+    the state one-hot (high under state_only, collapses under win_only), while the
+    window is recoverable from local structure (stays high under win_only too).
+
+    Parameters
+    ----------
+    histories : dict {p: list-of-epoch-dicts}, each epoch dict has keys
+        "full", "state_only", "win_only" -> {"idx_acc", "win_acc", "rew_mse"}.
+    p_values : iterable of p (controls colour/legend order).
+    """
+    _ensure_results_dir()
+    if save_path is None:
+        save_path = os.path.join(RESULTS_DIR, "figure_improved_wm.png")
+
+    colors = {p: c for p, c in zip(p_values, ["#1f77b4", "#ff7f0e", "#d62728",
+                                              "#2ca02c", "#9467bd"])}
+    cond_style = [("full", "-"), ("state_only", ":"), ("win_only", "--")]
+    fig, (axL, axR) = plt.subplots(1, 2, figsize=(13, 5.2))
+
+    def series(hist, group, metric):
+        return [ep[group][metric] for ep in hist]
+
+    for p in p_values:
+        hist = histories[p]
+        epochs = np.arange(1, len(hist) + 1)
+        col = colors[p]
+        for cond, ls in cond_style:
+            axL.plot(epochs, series(hist, cond, "idx_acc"), color=col, lw=2,
+                     ls=ls, label=f"p={p}  {cond}")
+            axR.plot(epochs, series(hist, cond, "win_acc"), color=col, lw=2,
+                     ls=ls, label=f"p={p}  {cond}")
+
+    axL.set_title("Absolute part: next-state accuracy")
+    axL.set_ylabel("next-state prediction accuracy")
+    axR.set_title("Relative part: per-cell window accuracy")
+    axR.set_ylabel("window-cell accuracy")
+    for ax in (axL, axR):
+        ax.set_xlabel("epoch")
+        ax.set_ylim(-0.02, 1.02)
+        ax.grid(alpha=0.3)
+        ax.legend(fontsize=7, loc="lower right", ncol=len(p_values))
+
+    fig.suptitle("Improved WM: state/window dropout -- which modality carries the "
+                 "absolute vs relative part of obs'?", fontsize=13)
+    fig.tight_layout(rect=(0, 0, 1, 0.96))
+    fig.savefig(save_path, dpi=120)
+    plt.close(fig)
+    return save_path
+
+
 if __name__ == "__main__":
     from gridworld import GridWorld
     layout = plot_grid_layout(GridWorld(seed=0))

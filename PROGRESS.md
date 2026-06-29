@@ -20,10 +20,6 @@
 | P5 失败分析 | ⬜ 未开始 | — |
 | P6 报告 | ⬜ 完成骨架，分析待人写 | `report/report.tex` |
 
-> Git 状态提醒：仅 P1（`gridworld.py`、`plot_grid_layout`、布局图、CLAUDE.md Section 0）已 push。
-> **其余全部本地未提交**：P1 动图/Figure 1 相关（`animate_episode`、`plot_visitation_heatmap`）、P2（`utils.py`、`world_model.py`、Figure 2、报告骨架）、P3（`dyna_q.py`）、P4（`experiments.py`、`plotting.py` 的 Fig3/4 + 对比动图函数、`snapshot_steps`、Figure 3/4、`training_comparison.gif`、`p4_curves.npz`）。
-
----
 
 ## 2. `gridworld.py`（P1 环境，已完成）
 

@@ -20,30 +20,52 @@
 \newlabel{sec:intro}{{1}{1}{Introduction}{section.1}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {2}Environment}{1}{section.2}\protected@file@percent }
 \newlabel{sec:env}{{2}{1}{Environment}{section.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}World Model}{1}{section.3}\protected@file@percent }
+\newlabel{sec:wm}{{3}{1}{World Model}{section.3}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces \textbf  {Figure 1.} State-visitation counts over 100 random-policy episodes. Walls are gray. Visitation decays smoothly from the start $(0,0)$ to the rarely-reached goal $(7,7)$, verifying the environment.\relax }}{2}{figure.caption.1}\protected@file@percent }
 \providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
 \newlabel{fig:fig1}{{1}{2}{\textbf {Figure 1.} State-visitation counts over 100 random-policy episodes. Walls are gray. Visitation decays smoothly from the start $(0,0)$ to the rarely-reached goal $(7,7)$, verifying the environment.\relax }{figure.caption.1}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {3}World Model}{2}{section.3}\protected@file@percent }
-\newlabel{sec:wm}{{3}{2}{World Model}{section.3}{}}
 \@writefile{toc}{\contentsline {paragraph}{Transition network (classification).}{2}{section*.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Reward network (regression).}{2}{section*.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Why accuracy plateaus below 100\% (and slightly above the 75--85\% band).}{2}{section*.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}Dyna-Q Algorithm}{2}{section.4}\protected@file@percent }
+\newlabel{sec:dynaq}{{4}{2}{Dyna-Q Algorithm}{section.4}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces \textbf  {Figure 2.} Left: transition-network validation accuracy vs epoch; the shaded band is the nominal 75--85\% expectation and the dashed line marks the unreachable 100\% (capped by 20\% noise). Right: top-3 predicted next states for five $(s,a)$ probes; each is within one step of the queried cell (``ok''), confirming the predictions are physically sensible.\relax }}{3}{figure.caption.5}\protected@file@percent }
 \newlabel{fig:fig2}{{2}{3}{\textbf {Figure 2.} Left: transition-network validation accuracy vs epoch; the shaded band is the nominal 75--85\% expectation and the dashed line marks the unreachable 100\% (capped by 20\% noise). Right: top-3 predicted next states for five $(s,a)$ probes; each is within one step of the queried cell (``ok''), confirming the predictions are physically sensible.\relax }{figure.caption.5}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Dyna-Q Algorithm}{3}{section.4}\protected@file@percent }
-\newlabel{sec:dynaq}{{4}{3}{Dyna-Q Algorithm}{section.4}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {5}Main Experiment Results}{3}{section.5}\protected@file@percent }
 \newlabel{sec:results}{{5}{3}{Main Experiment Results}{section.5}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces \textbf  {Figure 3.} Success rate vs real environment steps for Value Iteration (dashed ceiling), Q-learning ($K{=}0$), and Dyna-Q ($K{=}10$); mean $\pm 1$ std over 3 seeds. \emph  {[generated in P4]}\relax }}{3}{figure.caption.6}\protected@file@percent }
-\newlabel{fig:fig3}{{3}{3}{\textbf {Figure 3.} Success rate vs real environment steps for Value Iteration (dashed ceiling), Q-learning ($K{=}0$), and Dyna-Q ($K{=}10$); mean $\pm 1$ std over 3 seeds. \emph {[generated in P4]}\relax }{figure.caption.6}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces \textbf  {Figure 4.} Value-function heatmaps (VI / Q-learning / Dyna-Q), shared color scale, walls in gray. \emph  {[generated in P4]}\relax }}{4}{figure.caption.7}\protected@file@percent }
-\newlabel{fig:fig4}{{4}{4}{\textbf {Figure 4.} Value-function heatmaps (VI / Q-learning / Dyna-Q), shared color scale, walls in gray. \emph {[generated in P4]}\relax }{figure.caption.7}{}}
+\@writefile{toc}{\contentsline {paragraph}{(1) Does Dyna-Q learn faster than Q-learning?}{3}{section*.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{(2) Do both converge to the Value-Iteration ceiling?}{3}{section*.9}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces \textbf  {Figure 3.} Greedy success rate vs real environment steps (mean $\pm 1$ std, 3 seeds): Value Iteration ceiling (dashed), Q-learning ($K{=}0$), and Dyna-Q ($K{=}10$) with world models trained on 10{,}000 (good), 2{,}000 (medium) and 200 (bad) transitions. The good model accelerates learning; the bad model collapses to $0\%$ (Section\nobreakspace  {}\ref  {sec:failure}).\relax }}{4}{figure.caption.6}\protected@file@percent }
+\newlabel{fig:fig3}{{3}{4}{\textbf {Figure 3.} Greedy success rate vs real environment steps (mean $\pm 1$ std, 3 seeds): Value Iteration ceiling (dashed), Q-learning ($K{=}0$), and Dyna-Q ($K{=}10$) with world models trained on 10{,}000 (good), 2{,}000 (medium) and 200 (bad) transitions. The good model accelerates learning; the bad model collapses to $0\%$ (Section~\ref {sec:failure}).\relax }{figure.caption.6}{}}
+\@writefile{toc}{\contentsline {paragraph}{(3) What do the value heatmaps reveal (Figure\nobreakspace  {}\ref  {fig:fig4})?}{4}{section*.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{(4) How does imagined experience change the early-learning regime?}{4}{section*.11}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{(5) Where does the 20\% noise show up?}{4}{section*.12}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {6}Failure Analysis}{4}{section.6}\protected@file@percent }
 \newlabel{sec:failure}{{6}{4}{Failure Analysis}{section.6}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces \textbf  {Figure 5.} 50K-step success rate vs world-model training-set size (200 / 2000 / 10000 transitions) and the $K{=}0$ baseline. \emph  {[generated in P5]}\relax }}{4}{figure.caption.8}\protected@file@percent }
-\newlabel{fig:fig5}{{5}{4}{\textbf {Figure 5.} 50K-step success rate vs world-model training-set size (200 / 2000 / 10000 transitions) and the $K{=}0$ baseline. \emph {[generated in P5]}\relax }{figure.caption.8}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {7}Reflection}{4}{section.7}\protected@file@percent }
-\newlabel{sec:reflection}{{7}{4}{Reflection}{section.7}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {8}AI Tool Usage Log}{4}{section.8}\protected@file@percent }
-\newlabel{sec:ailog}{{8}{4}{AI Tool Usage Log}{section.8}{}}
-\gdef \@abspage@last{5}
+\@writefile{toc}{\contentsline {paragraph}{Pre-registered prediction.}{4}{section*.14}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces \textbf  {Figure 4.} Value-function heatmaps (VI / Q-learning / Dyna-Q), shared color scale, walls in gray.\relax }}{5}{figure.caption.7}\protected@file@percent }
+\newlabel{fig:fig4}{{4}{5}{\textbf {Figure 4.} Value-function heatmaps (VI / Q-learning / Dyna-Q), shared color scale, walls in gray.\relax }{figure.caption.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces \textbf  {Figure 5.} Greedy success rate at 50K real steps vs world-model training-set size (200 / 2000 / 10{,}000 transitions) and the $K{=}0$ baseline (mean $\pm 1$ std, 3 seeds). The 200-transition model is the only condition that fails, and it fails completely.\relax }}{5}{figure.caption.13}\protected@file@percent }
+\newlabel{fig:fig5}{{5}{5}{\textbf {Figure 5.} Greedy success rate at 50K real steps vs world-model training-set size (200 / 2000 / 10{,}000 transitions) and the $K{=}0$ baseline (mean $\pm 1$ std, 3 seeds). The 200-transition model is the only condition that fails, and it fails completely.\relax }{figure.caption.13}{}}
+\@writefile{toc}{\contentsline {paragraph}{What happened.}{5}{section*.15}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Mechanism (Lec.\nobreakspace  {}18/19/21).}{5}{section*.16}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Threshold, not gradient.}{6}{section*.17}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7}Innovation: An Improved World Model with a Local Field-of-View}{6}{section.7}\protected@file@percent }
+\newlabel{sec:innovation}{{7}{6}{Innovation: An Improved World Model with a Local Field-of-View}{section.7}{}}
+\@writefile{toc}{\contentsline {paragraph}{Motivation: a world model should learn the \emph  {rules} of the world.}{6}{section*.18}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Input/output design.}{6}{section*.19}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{A dropout data method to force the model to use its eyes.}{6}{section*.20}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces \textbf  {Figure 6.} Improved world model under anchor/window dropout. Left: next-state accuracy; right: per-cell window accuracy. Colour is the dropout probability $p$, line style the evaluation condition. With $p{=}0.5$ both modalities independently support prediction; with $p{=}0$ the model collapses when either is removed.\relax }}{7}{figure.caption.21}\protected@file@percent }
+\newlabel{fig:improved}{{6}{7}{\textbf {Figure 6.} Improved world model under anchor/window dropout. Left: next-state accuracy; right: per-cell window accuracy. Colour is the dropout probability $p$, line style the evaluation condition. With $p{=}0.5$ both modalities independently support prediction; with $p{=}0$ the model collapses when either is removed.\relax }{figure.caption.21}{}}
+\@writefile{toc}{\contentsline {paragraph}{Same map: as good, and no better.}{7}{section*.22}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces \textbf  {Figure 7.} Same training map: imagination-source ablation with the improved world model added (green). All variants reach the Value-Iteration ceiling; the world model gives no advantage over tabular imagination here.\relax }}{7}{figure.caption.23}\protected@file@percent }
+\newlabel{fig:ablation}{{7}{7}{\textbf {Figure 7.} Same training map: imagination-source ablation with the improved world model added (green). All variants reach the Value-Iteration ceiling; the world model gives no advantage over tabular imagination here.\relax }{figure.caption.23}{}}
+\@writefile{toc}{\contentsline {paragraph}{New map: why the idea cannot succeed \emph  {in this project}.}{8}{section*.24}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces \textbf  {Figure 8.} Generalization to an unseen map. Left: the new wall layout (start green, goal gold). Right: with the world models frozen from the \emph  {old} map, Value Iteration and tabular Dyna-Q solve the new map ($100\%$), while both frozen world models collapse and even fall below the model-free tabular agent; the improved model is no better than the one-hot one.\relax }}{8}{figure.caption.25}\protected@file@percent }
+\newlabel{fig:newmap}{{8}{8}{\textbf {Figure 8.} Generalization to an unseen map. Left: the new wall layout (start green, goal gold). Right: with the world models frozen from the \emph {old} map, Value Iteration and tabular Dyna-Q solve the new map ($100\%$), while both frozen world models collapse and even fall below the model-free tabular agent; the improved model is no better than the one-hot one.\relax }{figure.caption.25}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8}Reflection}{8}{section.8}\protected@file@percent }
+\newlabel{sec:reflection}{{8}{8}{Reflection}{section.8}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {9}AI Tool Usage Log}{9}{section.9}\protected@file@percent }
+\newlabel{sec:ailog}{{9}{9}{AI Tool Usage Log}{section.9}{}}
+\gdef \@abspage@last{9}

@@ -32,16 +32,25 @@ import numpy as np
 from gridworld import GridWorld
 from dyna_q import dyna_q, value_iteration, evaluate_greedy
 from experiments import load_world_model, SEEDS, N_STEPS, RECORD_EVERY, EVAL_EPISODES, NOISE
+from world_model import load_improved_wm, improved_adapters
+from utils import obs_batch_vectors
 
 
-def run_condition(label, seeds, K, imagine, tnet, rnet, n_steps=N_STEPS):
-    """Run one imagination-source condition across seeds; stack per-seed curves."""
+def run_condition(label, seeds, K, imagine, tnet, rnet, n_steps=N_STEPS,
+                  sa_encoder=None, env_fn=None):
+    """Run one imagination-source condition across seeds; stack per-seed curves.
+
+    `sa_encoder` lets a condition use a non-default world-model input encoding
+    (the improved WM passes obs_batch_vectors). `env_fn(seed)` builds the env so
+    a new-map experiment can reuse this runner.
+    """
     evals, finalQ = [], []
     steps = None
     for seed in seeds:
-        env = GridWorld(noise_prob=NOISE, seed=seed)
+        env = env_fn(seed) if env_fn is not None else GridWorld(noise_prob=NOISE, seed=seed)
         res = dyna_q(env, tnet, rnet, K=K, n_steps=n_steps, imagine=imagine,
-                     record_every=RECORD_EVERY, eval_episodes=EVAL_EPISODES, seed=seed)
+                     record_every=RECORD_EVERY, eval_episodes=EVAL_EPISODES, seed=seed,
+                     sa_encoder=sa_encoder)
         steps = res["steps"]
         evals.append(res["eval_success_rate"])
         finalQ.append(res["Q"])
@@ -63,23 +72,28 @@ def main(seeds=SEEDS, n_steps=N_STEPS, save=True):
     print(f"[VI] greedy success={vi_success:.2%}")
 
     tnet, rnet = load_world_model()
+    # Improved WM (no-drop, p=0). One net; adapters expose its transition/reward
+    # heads, and obs_batch_vectors encodes its 77-dim structured input.
+    imp_t, imp_r = improved_adapters(load_improved_wm())
 
+    # (label, K, imagine, color, tnet, rnet, sa_encoder, key)
     conds = [
-        ("Q-learning (K=0)",      0,  "neural",  "#1f77b4"),
-        ("Replay (K=10)",         10, "replay",  "#9467bd"),
-        ("Tabular Dyna-Q (K=10)", 10, "tabular", "#ff7f0e"),
-        ("Neural Dyna-Q (K=10)",  10, "neural",  "#d62728"),
+        ("Q-learning (K=0)",                 0,  "neural",  "#1f77b4", tnet,  rnet,  None,              "k0"),
+        ("Replay (K=10)",                    10, "replay",  "#9467bd", tnet,  rnet,  None,              "replay"),
+        ("Tabular Dyna-Q (K=10)",            10, "tabular", "#ff7f0e", tnet,  rnet,  None,              "tabular"),
+        ("Neural Dyna-Q (K=10)",             10, "neural",  "#d62728", tnet,  rnet,  None,              "neural"),
+        ("Improved World Model Dyna-Q (K=10)", 10, "neural", "#2ca02c", imp_t, imp_r, obs_batch_vectors, "improved"),
     ]
     results = []
-    for label, K, imagine, _ in conds:
+    for label, K, imagine, _, tn, rn, enc, _ in conds:
         print(f"Running {label} x{len(seeds)} seeds ...")
-        results.append(run_condition(label, seeds, K, imagine, tnet, rnet, n_steps))
+        results.append(run_condition(label, seeds, K, imagine, tn, rn, n_steps,
+                                     sa_encoder=enc))
 
     if save:
         payload = {"steps": results[0]["steps"], "vi_success": vi_success,
                    "seeds": np.array(seeds)}
-        for (label, K, imagine, _), res in zip(conds, results):
-            key = "k0" if K == 0 else imagine  # k0 / replay / tabular / neural
+        for (label, K, imagine, _, _, _, _, key), res in zip(conds, results):
             payload[f"{key}_eval"] = res["eval_success"]
         np.savez(os.path.join(RESULTS_DIR, "ablation_curves.npz"), **payload)
         print(f"Saved ablation curves to {RESULTS_DIR}/ablation_curves.npz")
@@ -95,7 +109,7 @@ if __name__ == "__main__":
 
     curves = [{"label": res["label"], "steps": res["steps"],
                "data": res["eval_success"], "color": color}
-              for (label, K, imagine, color), res in zip(out["conds"], out["results"])]
+              for (label, K, imagine, color, *_), res in zip(out["conds"], out["results"])]
     fig = plot_learning_curves(
         curves, vi_ceiling=out["vi_success"],
         title="Imagination-source ablation: K=10 with different (s', r) sources",

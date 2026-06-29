@@ -35,10 +35,19 @@ class GridWorld:
     GOAL_REWARD = 1.0
     STEP_REWARD = -0.01
 
-    def __init__(self, noise_prob=0.2, seed=None):
+    def __init__(self, noise_prob=0.2, seed=None, walls=None, goal=None, start=None):
         self.noise_prob = noise_prob
         self.n_states = self.SIZE * self.SIZE
         self.rng = _random.Random(seed)
+        # Optionally override the map. Setting these as *instance* attributes
+        # shadows the class defaults, so every method (and external code reading
+        # env.WALLS / env.GOAL / env.START) transparently sees the new map.
+        if walls is not None:
+            self.WALLS = frozenset(walls)
+        if goal is not None:
+            self.GOAL = goal
+        if start is not None:
+            self.START = start
         assert self._path_exists(), "No path from start to goal — fix WALLS."
         self.state = None
         self.t = 0

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2026.4.26)  12 JUN 2026 22:11
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2026.4.26)  15 JUN 2026 15:57
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -341,24 +341,24 @@ File: l3backend-pdftex.def 2022-01-12 L3 backend support: PDF output (pdfTeX)
 (./report.aux)
 \openout1 = `report.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 41.
-LaTeX Font Info:    ... okay on input line 41.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 41.
-LaTeX Font Info:    ... okay on input line 41.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 41.
-LaTeX Font Info:    ... okay on input line 41.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 41.
-LaTeX Font Info:    ... okay on input line 41.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 41.
-LaTeX Font Info:    ... okay on input line 41.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 41.
-LaTeX Font Info:    ... okay on input line 41.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 41.
-LaTeX Font Info:    ... okay on input line 41.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 41.
-LaTeX Font Info:    ... okay on input line 41.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 41.
-LaTeX Font Info:    ... okay on input line 41.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 30.
+LaTeX Font Info:    ... okay on input line 30.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 30.
+LaTeX Font Info:    ... okay on input line 30.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 30.
+LaTeX Font Info:    ... okay on input line 30.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 30.
+LaTeX Font Info:    ... okay on input line 30.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 30.
+LaTeX Font Info:    ... okay on input line 30.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 30.
+LaTeX Font Info:    ... okay on input line 30.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 30.
+LaTeX Font Info:    ... okay on input line 30.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 30.
+LaTeX Font Info:    ... okay on input line 30.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 30.
+LaTeX Font Info:    ... okay on input line 30.
 
 (/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
@@ -420,7 +420,7 @@ Package caption Info: End \AtBeginDocument code.
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-Package hyperref Info: Link coloring ON on input line 41.
+Package hyperref Info: Link coloring ON on input line 30.
 (/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2021-04-02 v2.47 Cross-referencing by name of section
 
@@ -432,31 +432,31 @@ Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 )
 \c@section@level=\count297
 )
-LaTeX Info: Redefining \ref on input line 41.
-LaTeX Info: Redefining \pageref on input line 41.
-LaTeX Info: Redefining \nameref on input line 41.
+LaTeX Info: Redefining \ref on input line 30.
+LaTeX Info: Redefining \pageref on input line 30.
+LaTeX Info: Redefining \nameref on input line 30.
 
 (./report.out) (./report.out)
 \@outlinefile=\write3
 \openout3 = `report.out'.
 
-LaTeX Font Info:    Trying to load font information for U+msa on input line 43.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 32.
 
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 43.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 32.
 
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-<../results//figure1_visitation.png, id=37, 469.755pt x 433.62pt>
+<../results//figure1_visitation.png, id=41, 469.755pt x 433.62pt>
 File: ../results//figure1_visitation.png Graphic file (type png)
 <use ../results//figure1_visitation.png>
 Package pdftex.def Info: ../results//figure1_visitation.png  used on input line
- 84.
+ 71.
 (pdftex.def)             Requested size: 249.13371pt x 229.96968pt.
 
 
@@ -465,11 +465,11 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 [1
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
-<../results//figure2_transition_accuracy.png, id=55, 867.24pt x 361.35pt>
+<../results//figure2_transition_accuracy.png, id=59, 867.24pt x 361.35pt>
 File: ../results//figure2_transition_accuracy.png Graphic file (type png)
 <use ../results//figure2_transition_accuracy.png>
 Package pdftex.def Info: ../results//figure2_transition_accuracy.png  used on i
-nput line 134.
+nput line 124.
 (pdftex.def)             Requested size: 452.9679pt x 188.73566pt.
 
 
@@ -477,46 +477,123 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 
 [2 <../results//figure1_visitation.png>]
 LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 1
-60.
+50.
 
 (/usr/share/texlive/texmf-dist/tex/latex/base/t1cmtt.fd
 File: t1cmtt.fd 2019/12/16 v2.5j Standard LaTeX font definitions
 )
+<../results//figure3_learning_curves.png, id=75, 578.16pt x 397.485pt>
+File: ../results//figure3_learning_curves.png Graphic file (type png)
+<use ../results//figure3_learning_curves.png>
+Package pdftex.def Info: ../results//figure3_learning_curves.png  used on input
+ line 171.
+(pdftex.def)             Requested size: 339.72592pt x 233.56189pt.
+
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[3 <../results//figure2_transition_accuracy.png>] [4] [5] (./report.aux)
+<../results//figure4_value_heatmaps.png, id=78, 843.15pt x 313.17pt>
+File: ../results//figure4_value_heatmaps.png Graphic file (type png)
+<use ../results//figure4_value_heatmaps.png>
+Package pdftex.def Info: ../results//figure4_value_heatmaps.png  used on input 
+line 181.
+(pdftex.def)             Requested size: 452.9679pt x 168.24913pt.
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[3 <../results//figure2_transition_accuracy.png>]
+<../results//figure5_data_scaling.png, id=94, 505.89pt x 361.35pt>
+File: ../results//figure5_data_scaling.png Graphic file (type png)
+<use ../results//figure5_data_scaling.png>
+Package pdftex.def Info: ../results//figure5_data_scaling.png  used on input li
+ne 233.
+(pdftex.def)             Requested size: 271.7835pt x 194.13362pt.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+Overfull \hbox (101.50282pt too wide) in paragraph at lines 242--250
+ []\T1/cmr/bx/n/10.95 Pre-registered pre-dic-tion.[] \T1/cmr/m/n/10.95 Be-fore 
+run-ning, I pre-dicted (times-tamped in \T1/cmtt/m/n/10.95 report/p5_prediction
+_2026-06-15.md\T1/cmr/m/n/10.95 )
+ []
+
+[4 <../results//figure3_learning_curves.png>] [5 <../results//figure4_value_hea
+tmaps.png> <../results//figure5_data_scaling.png>]
+<../results//figure_improved_wm.png, id=119, 939.51pt x 375.804pt>
+File: ../results//figure_improved_wm.png Graphic file (type png)
+<use ../results//figure_improved_wm.png>
+Package pdftex.def Info: ../results//figure_improved_wm.png  used on input line
+ 332.
+(pdftex.def)             Requested size: 452.9679pt x 181.18668pt.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[6]
+<../results//figure_ablation_imagination.png, id=131, 578.16pt x 397.485pt>
+File: ../results//figure_ablation_imagination.png Graphic file (type png)
+<use ../results//figure_ablation_imagination.png>
+Package pdftex.def Info: ../results//figure_ablation_imagination.png  used on i
+nput line 354.
+(pdftex.def)             Requested size: 317.07614pt x 217.98665pt.
+ [7 <../results//figure_improved_wm.png> <../results//figure_ablation_imaginati
+on.png>]
+<../results//newmap_layout.png, id=143, 433.62pt x 433.62pt>
+File: ../results//newmap_layout.png Graphic file (type png)
+<use ../results//newmap_layout.png>
+Package pdftex.def Info: ../results//newmap_layout.png  used on input line 383.
+
+(pdftex.def)             Requested size: 181.18439pt x 181.18623pt.
+<../results//figure_newmap_generalization.png, id=144, 578.16pt x 397.485pt>
+File: ../results//figure_newmap_generalization.png Graphic file (type png)
+<use ../results//figure_newmap_generalization.png>
+Package pdftex.def Info: ../results//figure_newmap_generalization.png  used on 
+input line 386.
+(pdftex.def)             Requested size: 262.7222pt x 180.61942pt.
+ [8 <../results//newmap_layout.png> <../results//figure_newmap_generalization.p
+ng>]
+Overfull \hbox (57.29892pt too wide) in paragraph at lines 452--464
+\T1/cmr/m/n/10.95 im-ple-mented the code (\T1/cmtt/m/n/10.95 utils.py \T1/cmr/m
+/n/10.95 en-cod-ing, \T1/cmtt/m/n/10.95 world_model.py\T1/cmr/m/n/10.95 , map-p
+arameterized \T1/cmtt/m/n/10.95 gridworld.py\T1/cmr/m/n/10.95 /\T1/cmtt/m/n/10.
+95 dyna_q.py\T1/cmr/m/n/10.95 ,
+ []
+
+[9] (./report.aux)
 Package rerunfilecheck Info: File `report.out' has not changed.
-(rerunfilecheck)             Checksum: 2990C8AE726FD377C71AB11EE0BCEC55;948.
+(rerunfilecheck)             Checksum: D99E8DD51BEF3112778C82CA13C885BF;1325.
  ) 
 Here is how much of TeX's memory you used:
- 11901 strings out of 478287
- 186636 string characters out of 5849289
- 483252 words of memory out of 5000000
- 29923 multiletter control sequences out of 15000+600000
- 482953 words of font info for 63 fonts, out of 8000000 for 9000
+ 11992 strings out of 478287
+ 189265 string characters out of 5849289
+ 484563 words of memory out of 5000000
+ 29981 multiletter control sequences out of 15000+600000
+ 484583 words of font info for 67 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 60i,6n,63p,525b,396s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 60i,10n,63p,540b,419s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-ts1.enc}{/usr/share/texmf
 /fonts/enc/dvips/cm-super/cm-super-t1.enc}</usr/share/texlive/texmf-dist/fonts/
-type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/
-public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public
-/amsfonts/cm/cmmi8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfon
-ts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/c
-mr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pf
-b></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr
-/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/share/
-texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/share/t
-exmf/fonts/type1/public/cm-super/sfbx1095.pfb></usr/share/texmf/fonts/type1/pub
-lic/cm-super/sfbx1440.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm109
-5.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm1200.pfb></usr/share/te
-xmf/fonts/type1/public/cm-super/sfrm1728.pfb></usr/share/texmf/fonts/type1/publ
-ic/cm-super/sfti1095.pfb></usr/share/texmf/fonts/type1/public/cm-super/sftt1095
-.pfb>
-Output written on report.pdf (5 pages, 381276 bytes).
+type1/public/amsfonts/cm/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/
+public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public
+/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfo
+nts/cm/cmmi8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/
+cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pf
+b></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></us
+r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/share
+/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/share/texliv
+e/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/share/texmf/f
+onts/type1/public/cm-super/sfbi1095.pfb></usr/share/texmf/fonts/type1/public/cm
+-super/sfbx1095.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfbx1440.pfb>
+</usr/share/texmf/fonts/type1/public/cm-super/sfrm1095.pfb></usr/share/texmf/fo
+nts/type1/public/cm-super/sfrm1200.pfb></usr/share/texmf/fonts/type1/public/cm-
+super/sfrm1728.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfti1095.pfb><
+/usr/share/texmf/fonts/type1/public/cm-super/sftt1095.pfb>
+Output written on report.pdf (9 pages, 1366719 bytes).
 PDF statistics:
- 175 PDF objects out of 1000 (max. 8388607)
- 129 compressed objects within 2 object streams
- 25 named destinations out of 1000 (max. 500000)
- 75 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 255 PDF objects out of 1000 (max. 8388607)
+ 186 compressed objects within 2 object streams
+ 47 named destinations out of 1000 (max. 500000)
+ 118 words of extra memory for PDF output out of 10000 (max. 10000000)
 
